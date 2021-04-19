@@ -88,9 +88,13 @@ public class Game {
             if(input.inputAvailable()){
                 direction = input.getInput();
                 if(direction == Input.Inputs.LEFT){
-                    playerShip.setDirection(-1, 0);
+                    if(playerShip.getMovementComponent().getX() > 0) {
+                        playerShip.setDirection(-1, 0);
+                    }
                 } else if(direction == Input.Inputs.RIGHT){
-                    playerShip.setDirection(1, 0);
+                    if(playerShip.getMovementComponent().getX() < gameWidth-1){
+                        playerShip.setDirection(1, 0);
+                    }
                 } else if(direction == Input.Inputs.SHOOT){
                     bullets.add(abs.createPlayerBullet(playerShip.getMovementComponent().getX(), playerShip.getMovementComponent().getY()));
                 } else if(direction == Input.Inputs.STOP){

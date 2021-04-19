@@ -3,8 +3,6 @@ package Entities.Abstract;
 import Components.MovementComponent;
 
 public abstract class Entity {
-    protected int gameWidth;
-    protected int gameHeight;
 
     protected MovementComponent movementComponent;
 

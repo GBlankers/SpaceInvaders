@@ -11,8 +11,6 @@ public class J2DPlayerShip extends PlayerShip {
     public J2DPlayerShip() {
         super();
         engine = J2DEngine.getInstance();
-        this.gameWidth = J2DEngine.gameWidth;
-        this.gameHeight = J2DEngine.gameHeight;
     }
 
     @Override
