@@ -2,6 +2,7 @@ package Main;
 
 import Components.MovementComponent;
 import Entities.Abstract.EnemyShip;
+import Entities.Abstract.Entity;
 import Entities.Abstract.PlayerBullet;
 import Entities.Abstract.PlayerShip;
 import Factories.AbstractFactory;
@@ -10,6 +11,7 @@ import System.MovementUpdater;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.stream.Stream;
 
 public class Game {
     private final AbstractFactory abs;
@@ -31,7 +33,7 @@ public class Game {
         this.abs = abs;
         abs.createEngine();
         this.input = abs.createInput();
-        this.gameTimer = new GameTimer(10);
+        this.gameTimer = new GameTimer(16);
     }
 
     /**
@@ -69,13 +71,10 @@ public class Game {
     public void run(){
         isRunning = true;
         Input.Inputs direction;
-        int enemySpeedDivider = 0;
 
         while (isRunning){
             // Start timer
             gameTimer.tick();
-            // Make the player ship visible
-            playerShip.visualise();
 
             if(enemies.isEmpty()){
                 abs.gameOverWin();
@@ -89,11 +88,11 @@ public class Game {
                 direction = input.getInput();
                 if(direction == Input.Inputs.LEFT){
                     if(playerShip.getMovementComponent().getX() > 0) {
-                        playerShip.setDirection(-1, 0);
+                        playerShip.setDirection(-0.2, 0);
                     }
                 } else if(direction == Input.Inputs.RIGHT){
                     if(playerShip.getMovementComponent().getX() < gameWidth-1){
-                        playerShip.setDirection(1, 0);
+                        playerShip.setDirection(0.2, 0);
                     }
                 } else if(direction == Input.Inputs.SHOOT){
                     bullets.add(abs.createPlayerBullet(playerShip.getMovementComponent().getX(), playerShip.getMovementComponent().getY()));
@@ -103,32 +102,15 @@ public class Game {
                 }
             }
 
-            playerShip.setMovementComponent(MovementUpdater.update(playerShip.getMovementComponent()));
-            for(PlayerBullet b: bullets){
-                b.visualise();
-                b.setMovementComponent(MovementUpdater.update(b.getMovementComponent()));
-            }
-
-            if(enemySpeedDivider == 16){
-                enemySpeedDivider = 0;
-                enemyMovement();
-            } else {
-                enemySpeedDivider++;
-            }
-
-
-            for(EnemyShip e: enemies){
-                e.visualise();
-                if(enemySpeedDivider == 10){
-
-                    e.setMovementComponent(MovementUpdater.update(e.getMovementComponent()));
-                }
-            }
+            // Set the direction of the enemies
+            enemyMovement();
+            // Visualise the entities
+            Stream.concat(Stream.concat(bullets.stream(), enemies.stream()), Stream.of(playerShip)).forEach(Entity::visualise);
+            // Move the entities
+            Stream.concat(Stream.concat(bullets.stream(), enemies.stream()), Stream.of(playerShip)).forEach(Entity -> Entity.setMovementComponent(MovementUpdater.update(Entity.getMovementComponent())));
 
             checkEnemyHit();
             bulletCleanUp();
-
-
 
             abs.updateScore(score);
             abs.engineRender();
@@ -158,7 +140,7 @@ public class Game {
             itEnemyShip = enemies.listIterator();
             while (itEnemyShip.hasNext()){
                 MovementComponent mcEnemy = itEnemyShip.next().getMovementComponent();
-                if (mcEnemy.getX() == mcBullet.getX() && mcBullet.getY()==mcEnemy.getY()){
+                if (isInRange(mcEnemy, mcBullet)){
                     hit = 1;
                     score++;
                     break;
@@ -181,28 +163,28 @@ public class Game {
         double dx = 0;
         double dy = 0;
         for(EnemyShip eps: enemies){
-            if(eps.getMovementComponent().getY() == gameHeight-2){
+            if(eps.getMovementComponent().getY() >= gameHeight-2){
                 isRunning = false;
                 abs.gameOverLose();
                 break;
             }
-            if(eps.getMovementComponent().getX() == 0 & eps.getMovementComponent().getDx() == -1){
+            if(eps.getMovementComponent().getX() <= 0 & eps.getMovementComponent().getDx() < 0){
                 dx = 0;
-                dy = 1;
+                dy = 0.2;
                 change = true;
                 break;
-            }else if(eps.getMovementComponent().getX() == 0 & eps.getMovementComponent().getDx() == 0){
-                dx = 1;
+            }else if(eps.getMovementComponent().getX() <= 0 & eps.getMovementComponent().getDx() == 0){
+                dx = 0.07;
                 dy = 0;
                 change = true;
                 break;
-            }else if(eps.getMovementComponent().getX() == gameWidth-1 & eps.getMovementComponent().getDx() == 1){
+            }else if(eps.getMovementComponent().getX() >= gameWidth-1 & eps.getMovementComponent().getDx() > 0){
                 dx = 0;
-                dy = 1;
+                dy = 0.2;
                 change = true;
                 break;
-            }else if(eps.getMovementComponent().getX() == gameWidth-1 & eps.getMovementComponent().getDx() == 0){
-                dx = -1;
+            }else if(eps.getMovementComponent().getX() >= gameWidth-1 & eps.getMovementComponent().getDx() == 0){
+                dx = -0.07;
                 dy = 0;
                 change = true;
                 break;
@@ -214,6 +196,20 @@ public class Game {
             double finalDy = dy;
             enemies.forEach(enemyShip -> enemyShip.setMovement(finalDx, finalDy));
         }
+    }
+
+    /**
+     * Check if a bullet is in range of a target
+     * @param mcTarget movement component of a target entity
+     * @param mcBullet movement component of the bullet
+     * @return boolean corresponding to a hit or not
+     */
+    public boolean isInRange(MovementComponent mcTarget, MovementComponent mcBullet){
+        double es = abs.getEntitySize()*0.4;
+        if (mcTarget.getX()-es<= mcBullet.getX() && mcBullet.getX() <= mcTarget.getX()+es){
+            return mcTarget.getY()-es <= mcBullet.getY() && mcBullet.getY() <= mcTarget.getY()+es;
+        }
+        return false;
     }
 
 }

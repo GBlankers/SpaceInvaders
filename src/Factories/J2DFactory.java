@@ -85,5 +85,8 @@ public class J2DFactory extends AbstractFactory{
         g.drawString("You lose!", x, y);
     }
 
-
+    @Override
+    public double getEntitySize(){
+        return J2DEngine.getInstance().getEntitySize();
+    }
 }

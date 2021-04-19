@@ -74,7 +74,21 @@ public class J2DEngine extends Engine {
         return size;
     }
 
+    @Override
     public int getImageSize(){ return imageSize; }
+
+    @Override
+    public double getEntitySize(){
+        if (screenHeight<screenWidth){
+            if (gameWidth < gameHeight)
+                return (screenHeight*1.0/imageSize)/gameHeight;
+            return (screenHeight*1.0/imageSize)/gameWidth;
+        }
+
+        if (gameWidth < gameHeight)
+            return (screenWidth*1.0/imageSize)/gameHeight;
+        return (screenWidth*1.0/imageSize)/gameWidth;
+    }
 
     @Override
     public void render(){

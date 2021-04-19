@@ -16,7 +16,9 @@ public class J2DPlayerShip extends PlayerShip {
     @Override
     public void visualise(){
         Graphics2D g2d = engine.getG2d();
-        int size = engine.getSize();
-        g2d.drawImage(engine.imagePlayerShip, (int) movementComponent.getX()*size, (int) movementComponent.getY()*size, null);
+        double size = engine.getSize();
+        int x = (int) (movementComponent.getX()*size);
+        int y = (int) (movementComponent.getY()*size);
+        g2d.drawImage(engine.imagePlayerShip, x, y, null);
     }
 }

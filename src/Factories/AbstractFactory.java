@@ -28,4 +28,7 @@ public abstract class AbstractFactory {
     // Game end
     public abstract void gameOverWin();
     public abstract void gameOverLose();
+
+    // Entity Size
+    public abstract double getEntitySize();
 }

@@ -8,6 +8,6 @@ public abstract class PlayerBullet extends Player{
         movementComponent.setX(x);
         movementComponent.setY(y-1);
         movementComponent.setDx(0);
-        movementComponent.setDy(-1);
+        movementComponent.setDy(-0.5);
     }
 }

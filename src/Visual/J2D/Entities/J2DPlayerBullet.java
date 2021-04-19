@@ -16,9 +16,12 @@ public class J2DPlayerBullet extends PlayerBullet {
     @Override
     public void visualise() {
         Graphics2D g2d = engine.getG2d();
-        int size = engine.getSize();
+        double size = engine.getSize();
+
+        int x = (int) (movementComponent.getX()*size+size/4);
+        int y = (int) (movementComponent.getY()*size+size/4);
 
         // Place the bullet in the middle of the square grid
-        g2d.drawImage(engine.playerBullet, (int) movementComponent.getX()*size+size/4, (int) movementComponent.getY()*size+size/4, null);
+        g2d.drawImage(engine.playerBullet, x, y, null);
     }
 }

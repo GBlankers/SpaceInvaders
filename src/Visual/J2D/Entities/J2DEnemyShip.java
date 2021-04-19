@@ -21,11 +21,14 @@ public class J2DEnemyShip extends EnemyShip {
     public void visualise() {
         Graphics2D g2d = engine.getG2d();
         // Engine grid size
-        int size = engine.getSize();
+        double size = engine.getSize();
         // Engine image size
         int imageSize = engine.getImageSize();
 
+        int x = (int) (movementComponent.getX()*size);
+        int y = (int) (movementComponent.getY()*size);
 
-        g2d.drawImage(engine.enemySprite.getSubimage( spriteNumber*imageSize, 0, imageSize, imageSize), (int) movementComponent.getX()*size, (int) movementComponent.getY()*size, null);
+
+        g2d.drawImage(engine.enemySprite.getSubimage( spriteNumber*imageSize, 0, imageSize, imageSize), x, y, null);
     }
 }
