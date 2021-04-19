@@ -7,7 +7,7 @@ import java.awt.event.KeyEvent;
 import java.util.LinkedList;
 
 public class KeyboardInput extends Input{
-    private LinkedList<Inputs> keyInputs;
+    private final LinkedList<Inputs> keyInputs;
 
     public KeyboardInput(Engine engine){
         engine.getFrame().addKeyListener(new KeyInputAdapter());
@@ -22,6 +22,7 @@ public class KeyboardInput extends Input{
     @Override
     public Inputs getInput() {
         Inputs ret = keyInputs.poll();
+        // clear the input buffer
         keyInputs.clear();
         return ret;
     }
@@ -44,10 +45,10 @@ public class KeyboardInput extends Input{
                     keyInputs.add(Inputs.UP);
                     break;
                 case KeyEvent.VK_SPACE:
-                    keyInputs.add(Inputs.SPACE);
+                    keyInputs.add(Inputs.SHOOT);
                     break;
                 case KeyEvent.VK_Q:
-                    keyInputs.add(Inputs.Q);
+                    keyInputs.add(Inputs.STOP);
                     break;
             }
         }

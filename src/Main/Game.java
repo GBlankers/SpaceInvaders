@@ -34,11 +34,15 @@ public class Game {
         this.gameTimer = new GameTimer(10);
     }
 
+    /**
+     * Initialise the engine, entities, render the screen and start the main loop
+     */
     public void start(){
         abs.engineStart();
         // x:[-4;4] y:[-3;3]
         abs.engineSetGameDimensions(gameWidth, gameHeight);
 
+        // Create some entities for poc
         playerShip = abs.createPlayerShip();
         enemies.add(abs.createEnemyShip(-3, -3));
         enemies.add(abs.createEnemyShip(-2, -3));
@@ -52,10 +56,16 @@ public class Game {
         enemies.add(abs.createEnemyShip(0, -2));
         enemies.add(abs.createEnemyShip(1, -2));
         enemies.add(abs.createEnemyShip(2, -2));
+
+        // Make the entities visible
         abs.engineRender();
+        // Execute the main loop
         run();
     }
 
+    /**
+     * Main Game loop
+     */
     public void run(){
         isRunning = true;
         Input.Inputs direction;
@@ -81,9 +91,9 @@ public class Game {
                     playerShip.setDirection(-1, 0);
                 } else if(direction == Input.Inputs.RIGHT){
                     playerShip.setDirection(1, 0);
-                } else if(direction == Input.Inputs.SPACE){
+                } else if(direction == Input.Inputs.SHOOT){
                     bullets.add(abs.createPlayerBullet(playerShip.getMovementComponent().getX(), playerShip.getMovementComponent().getY()));
-                } else if(direction == Input.Inputs.Q){
+                } else if(direction == Input.Inputs.STOP){
                     isRunning = false;
                     System.exit(0);
                 }
@@ -132,6 +142,9 @@ public class Game {
         bullets.removeIf(playerBullet -> playerBullet.getMovementComponent().getY() < 0);
     }
 
+    /**
+     * Collision detection for the player bullets
+     */
     public void checkEnemyHit(){
         Iterator<PlayerBullet> itBullet = bullets.listIterator();
         Iterator<EnemyShip> itEnemyShip;
@@ -144,7 +157,6 @@ public class Game {
                 if (mcEnemy.getX() == mcBullet.getX() && mcBullet.getY()==mcEnemy.getY()){
                     hit = 1;
                     score++;
-                    System.out.println("hit!");
                     break;
                 }
             }
@@ -157,8 +169,8 @@ public class Game {
     }
 
     /**
-     * Change the dx and dy for the whole group of enemies so they change direction as a group
-     * Also check that the enemies are not to close to the player
+     * Change the dx and dy for the whole group of enemies so they change direction as a group,
+     * also check that the enemies are not to close to the player as this will stop the game
      */
     public void enemyMovement(){
         boolean change = false;

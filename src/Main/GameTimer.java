@@ -11,8 +11,8 @@ public class GameTimer {
     private long start, last;
 
     /**
-     * Constructor for the Game Timer class
-     * Will initialize variables
+     * Constructor for the Game Timer class,
+     * will initialize variables
      * @param fps The wanted frames per seconds
      */
     public GameTimer(long fps){
