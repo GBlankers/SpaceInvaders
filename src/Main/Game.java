@@ -1,16 +1,15 @@
 package Main;
 
 import Components.MovementComponent;
-import Entities.Abstract.EnemyShip;
-import Entities.Abstract.Entity;
-import Entities.Abstract.PlayerBullet;
-import Entities.Abstract.PlayerShip;
+import Entities.Abstract.*;
 import Factories.AbstractFactory;
 import Interaction.Input;
 import System.MovementUpdater;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 
 public class Game {
@@ -26,7 +25,8 @@ public class Game {
     private int score = 0;
 
     private final ArrayList<EnemyShip> enemies = new ArrayList<>();
-    private final ArrayList<PlayerBullet> bullets = new ArrayList<>();
+    private final ArrayList<PlayerBullet> playerBullets = new ArrayList<>();
+    private final ArrayList<EnemyBullet> enemyBullets = new ArrayList<>();
     private PlayerShip playerShip;
 
     public Game(AbstractFactory abs){
@@ -100,7 +100,7 @@ public class Game {
                         playerShip.setDirection(0.2, 0);
                     }
                 } else if(direction == Input.Inputs.SHOOT){
-                    bullets.add(abs.createPlayerBullet(playerShip.getMovementComponent().getX(), playerShip.getMovementComponent().getY()));
+                    playerBullets.add(abs.createPlayerBullet(playerShip.getMovementComponent().getX(), playerShip.getMovementComponent().getY()));
                 } else if(direction == Input.Inputs.STOP){
                     isRunning = false;
                     System.exit(0);
@@ -110,11 +110,15 @@ public class Game {
             // Set the direction of the enemies
             enemyMovement();
             // Visualise the entities
-            Stream.concat(Stream.concat(bullets.stream(), enemies.stream()), Stream.of(playerShip)).forEach(Entity::visualise);
+            Stream.concat(Stream.concat(Stream.concat(playerBullets.stream(), enemies.stream()), Stream.of(playerShip)), enemyBullets.stream())
+                    .forEach(Entity::visualise);
             // Move the entities
-            Stream.concat(Stream.concat(bullets.stream(), enemies.stream()), Stream.of(playerShip)).forEach(Entity -> Entity.setMovementComponent(MovementUpdater.update(Entity.getMovementComponent())));
+            Stream.concat(Stream.concat(Stream.concat(playerBullets.stream(), enemies.stream()), Stream.of(playerShip)), enemyBullets.stream())
+                    .forEach(Entity -> Entity.setMovementComponent(MovementUpdater.update(Entity.getMovementComponent())));
 
+            enemyShoot();
             checkEnemyHit();
+            checkPlayerHit();
             bulletCleanUp();
 
             abs.updateScore(score);
@@ -130,14 +134,15 @@ public class Game {
      * Deletes the off screen bullets to free up memory
      */
     public void bulletCleanUp(){
-        bullets.removeIf(playerBullet -> playerBullet.getMovementComponent().getY() < 0);
+        playerBullets.removeIf(playerBullet -> playerBullet.getMovementComponent().getY() < 0);
+        enemyBullets.removeIf(enemyBullet -> enemyBullet.getMovementComponent().getY() > gameHeight);
     }
 
     /**
-     * Collision detection for the player bullets
+     * Collision detection for the playerBullets with the enemies
      */
     public void checkEnemyHit(){
-        Iterator<PlayerBullet> itBullet = bullets.listIterator();
+        Iterator<PlayerBullet> itBullet = playerBullets.listIterator();
         Iterator<EnemyShip> itEnemyShip;
         while (itBullet.hasNext()){
             int hit = 0;
@@ -155,6 +160,23 @@ public class Game {
             if(hit>0){
                 itBullet.remove();
                 itEnemyShip.remove();
+            }
+        }
+    }
+
+    /**
+     * Collision detection for the enemyBullets with the playerShip
+     */
+    public void checkPlayerHit(){
+        Iterator<EnemyBullet> itBullet = enemyBullets.iterator();
+
+        while(itBullet.hasNext()){
+            MovementComponent mcBullet = itBullet.next().getMovementComponent();
+            if(isInRange(playerShip.getMovementComponent(), mcBullet)){
+                playerShip.hit();
+                score --;
+                itBullet.remove();
+                break;
             }
         }
     }
@@ -211,10 +233,25 @@ public class Game {
      */
     public boolean isInRange(MovementComponent mcTarget, MovementComponent mcBullet){
         double es = abs.getEntitySize()*0.4;
-        if (mcTarget.getX()-es<= mcBullet.getX() && mcBullet.getX() <= mcTarget.getX()+es){
-            return mcTarget.getY()-es <= mcBullet.getY() && mcBullet.getY() <= mcTarget.getY()+es;
+        if (mcTarget.getX()- es<= mcBullet.getX() && mcBullet.getX() <= mcTarget.getX()+es){
+            return mcTarget.getY() - es <= mcBullet.getY() && mcBullet.getY() <= mcTarget.getY()+es;
         }
         return false;
+    }
+
+    /**
+     * Chose an enemy to shoot a bullet
+     */
+    public void enemyShoot(){
+        if(!enemies.isEmpty()){
+            int randomNum = ThreadLocalRandom.current().nextInt(0, 13 + 1);
+
+            if (randomNum==4){
+                Collections.shuffle(enemies);
+                MovementComponent mcE = enemies.get(0).getMovementComponent();
+                enemyBullets.add(abs.createEnemyBullet(mcE.getX(), mcE.getY()));
+            }
+        }
     }
 
 }

@@ -1,6 +1,5 @@
 //TODO: Correct use of abstract factory?
 //TODO: enemy shooting
-//TODO: Player lives
 //TODO: levels
 //TODO: power-ups
 

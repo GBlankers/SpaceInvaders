@@ -1,11 +1,13 @@
 package Factories;
 
+import Entities.Abstract.EnemyBullet;
 import Entities.Abstract.EnemyShip;
 import Entities.Abstract.PlayerBullet;
 import Entities.Abstract.PlayerShip;
 import Interaction.Input;
 import Interaction.KeyboardInput;
 import Visual.Engine;
+import Visual.J2D.Entities.J2DEnemyBullet;
 import Visual.J2D.Entities.J2DEnemyShip;
 import Visual.J2D.Entities.J2DPlayerBullet;
 import Visual.J2D.Entities.J2DPlayerShip;
@@ -29,6 +31,11 @@ public class J2DFactory extends AbstractFactory{
     @Override
     public PlayerBullet createPlayerBullet(double x, double y) {
         return new J2DPlayerBullet(x, y);
+    }
+
+    @Override
+    public EnemyBullet createEnemyBullet(double x, double y) {
+        return new J2DEnemyBullet(x, y);
     }
 
     @Override

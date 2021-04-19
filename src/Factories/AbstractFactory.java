@@ -1,5 +1,6 @@
 package Factories;
 
+import Entities.Abstract.EnemyBullet;
 import Entities.Abstract.EnemyShip;
 import Entities.Abstract.PlayerBullet;
 import Entities.Abstract.PlayerShip;
@@ -12,6 +13,7 @@ public abstract class AbstractFactory {
     public abstract PlayerShip createPlayerShip();
     public abstract EnemyShip createEnemyShip(double x, double y);
     public abstract PlayerBullet createPlayerBullet(double x, double y);
+    public abstract EnemyBullet createEnemyBullet(double x, double y);
 
     // Engine control
     public abstract Engine createEngine();
