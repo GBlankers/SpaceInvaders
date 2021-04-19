@@ -6,9 +6,9 @@ import Factories.AbstractFactory;
 import Interaction.Input;
 import System.MovementUpdater;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 
@@ -24,16 +24,22 @@ public class Game {
 
     private int score = 0;
 
+    private boolean lvls = false;
+    private int lvlNr = 1;
+
     private final ArrayList<EnemyShip> enemies = new ArrayList<>();
     private final ArrayList<PlayerBullet> playerBullets = new ArrayList<>();
     private final ArrayList<EnemyBullet> enemyBullets = new ArrayList<>();
     private PlayerShip playerShip;
 
-    public Game(AbstractFactory abs){
+    private File properties;
+
+    public Game(AbstractFactory abs, File properties){
         this.abs = abs;
         abs.createEngine();
         this.input = abs.createInput();
         this.gameTimer = new GameTimer(16);
+        this.properties = properties;
     }
 
     /**
@@ -41,23 +47,46 @@ public class Game {
      */
     public void start(){
         abs.engineStart();
-        // x:[-4;4] y:[-3;3]
-        abs.engineSetGameDimensions(gameWidth, gameHeight);
 
-        // Create some entities for poc
+        try {
+            Scanner propReader = new Scanner(properties);
+            String data = propReader.nextLine();
+            List<String> str = Arrays.asList(data.split(","));
+
+            abs.engineSetGameDimensions(Integer.parseInt(str.get(0)), Integer.parseInt(str.get(1)));
+            if(propReader.nextLine().equals("lvl1")){
+                lvls = true;
+                while(propReader.hasNext()){
+                    data = propReader.nextLine();
+                    if(data.equals("Q"))
+                        break;
+                    str = Arrays.asList(data.split(","));
+                    enemies.add(abs.createEnemyShip(Integer.parseInt(str.get(0)), Integer.parseInt(str.get(1))));
+                }
+            }
+
+        } catch (FileNotFoundException e){
+            System.out.println(Arrays.toString(e.getStackTrace()));
+
+            // x:[-4;4] y:[-3;3]
+            abs.engineSetGameDimensions(gameWidth, gameHeight);
+
+            // Default values if the property file cannot be found
+            enemies.add(abs.createEnemyShip(-3, -3));
+            enemies.add(abs.createEnemyShip(-2, -3));
+            enemies.add(abs.createEnemyShip(-1, -3));
+            enemies.add(abs.createEnemyShip(0, -3));
+            enemies.add(abs.createEnemyShip(1, -3));
+            enemies.add(abs.createEnemyShip(2, -3));
+            enemies.add(abs.createEnemyShip(3, -3));
+            enemies.add(abs.createEnemyShip(-2, -2));
+            enemies.add(abs.createEnemyShip(-1, -2));
+            enemies.add(abs.createEnemyShip(0, -2));
+            enemies.add(abs.createEnemyShip(1, -2));
+            enemies.add(abs.createEnemyShip(2, -2));
+        }
+
         playerShip = abs.createPlayerShip();
-        enemies.add(abs.createEnemyShip(-3, -3));
-        enemies.add(abs.createEnemyShip(-2, -3));
-        enemies.add(abs.createEnemyShip(-1, -3));
-        enemies.add(abs.createEnemyShip(0, -3));
-        enemies.add(abs.createEnemyShip(1, -3));
-        enemies.add(abs.createEnemyShip(2, -3));
-        enemies.add(abs.createEnemyShip(3, -3));
-        enemies.add(abs.createEnemyShip(-2, -2));
-        enemies.add(abs.createEnemyShip(-1, -2));
-        enemies.add(abs.createEnemyShip(0, -2));
-        enemies.add(abs.createEnemyShip(1, -2));
-        enemies.add(abs.createEnemyShip(2, -2));
 
         // Make the entities visible
         abs.engineRender();
@@ -77,8 +106,18 @@ public class Game {
             gameTimer.tick();
 
             if(enemies.isEmpty()){
-                abs.gameOverWin();
-                isRunning = false;
+                if(!lvls){
+                    abs.gameOverWin();
+                    isRunning = false;
+                } else {
+                    lvlNr ++;
+                    loadNewLevel();
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e){
+                        System.out.println(e.getMessage());
+                    }
+                }
             }
 
             if (playerShip.getHealth() == 0){
@@ -93,11 +132,11 @@ public class Game {
                 direction = input.getInput();
                 if(direction == Input.Inputs.LEFT){
                     if(playerShip.getMovementComponent().getX() > 0) {
-                        playerShip.setDirection(-0.2, 0);
+                        playerShip.setDirection(-0.4, 0);
                     }
                 } else if(direction == Input.Inputs.RIGHT){
                     if(playerShip.getMovementComponent().getX() < gameWidth-1){
-                        playerShip.setDirection(0.2, 0);
+                        playerShip.setDirection(0.4, 0);
                     }
                 } else if(direction == Input.Inputs.SHOOT){
                     playerBullets.add(abs.createPlayerBullet(playerShip.getMovementComponent().getX(), playerShip.getMovementComponent().getY()));
@@ -251,6 +290,35 @@ public class Game {
                 MovementComponent mcE = enemies.get(0).getMovementComponent();
                 enemyBullets.add(abs.createEnemyBullet(mcE.getX(), mcE.getY()));
             }
+        }
+    }
+
+    public void loadNewLevel(){
+        try{
+            Scanner propScan = new Scanner(properties);
+            String level = "lvl"+lvlNr;
+            boolean levelAvailable = false;
+            String data;
+            List<String> str;
+
+            while(propScan.hasNext()){
+                data = propScan.nextLine();
+                if(data.equals(level)){
+                    levelAvailable = true;
+                    data = propScan.nextLine();
+                }
+
+                if(levelAvailable){
+                    if(data.equals("Q"))
+                        break;
+                    str = Arrays.asList(data.split(","));
+                    enemies.add(abs.createEnemyShip(Integer.parseInt(str.get(0)), Integer.parseInt(str.get(1))));
+                }
+                isRunning = levelAvailable;
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            isRunning = false;
         }
     }
 
