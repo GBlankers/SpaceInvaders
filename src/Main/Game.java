@@ -81,6 +81,11 @@ public class Game {
                 isRunning = false;
             }
 
+            if (playerShip.getHealth() == 0){
+                abs.gameOverLose();
+                isRunning = false;
+            }
+
             // default movement = stay still
             playerShip.setDirection(0, 0);
 
@@ -178,12 +183,12 @@ public class Game {
                 dy = 0;
                 change = true;
                 break;
-            }else if(eps.getMovementComponent().getX() >= gameWidth-1 & eps.getMovementComponent().getDx() > 0){
+            }else if(eps.getMovementComponent().getX() >= gameWidth - 1 & eps.getMovementComponent().getDx() > 0){
                 dx = 0;
                 dy = 0.2;
                 change = true;
                 break;
-            }else if(eps.getMovementComponent().getX() >= gameWidth-1 & eps.getMovementComponent().getDx() == 0){
+            }else if(eps.getMovementComponent().getX() >= gameWidth -1 & eps.getMovementComponent().getDx() == 0){
                 dx = -0.07;
                 dy = 0;
                 change = true;

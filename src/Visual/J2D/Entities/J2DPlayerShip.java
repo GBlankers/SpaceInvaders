@@ -20,5 +20,9 @@ public class J2DPlayerShip extends PlayerShip {
         int x = (int) (movementComponent.getX()*size);
         int y = (int) (movementComponent.getY()*size);
         g2d.drawImage(engine.imagePlayerShip, x, y, null);
+
+        for(int i = 0; i< this.health; i++){
+            g2d.drawImage(engine.healthImage, (int) (i*size/3), 0, null);
+        }
     }
 }

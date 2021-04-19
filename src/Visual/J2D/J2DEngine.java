@@ -27,6 +27,7 @@ public class J2DEngine extends Engine {
     public BufferedImage enemySprite;
     public BufferedImage playerBullet;
     public BufferedImage backgroundImage;
+    public BufferedImage healthImage;
 
     private int size;
     private int imageSize;
@@ -107,6 +108,7 @@ public class J2DEngine extends Engine {
             imagePlayerShip = resizeImage(imagePlayerShip, imageSize, imageSize);
             enemySprite = resizeImage(enemySprite, imageSize*7, imageSize);
             playerBullet = resizeImage(playerBullet, (int) (imageSize*0.4), (int) (imageSize*0.8));
+            healthImage = resizeImage(healthImage, (int) (imageSize*0.4), (int) (imageSize*0.4));
         } catch (Exception e){
             System.out.println(Arrays.toString(e.getStackTrace()));
         }
@@ -121,6 +123,7 @@ public class J2DEngine extends Engine {
             enemySprite = ImageIO.read(new File("res/alienSprite.png"));
             playerBullet = ImageIO.read(new File("res/playerBullet.png"));
             backgroundImage = ImageIO.read(new File("res/spaceBackground.png"));
+            healthImage = ImageIO.read(new File("res/heart.png"));
         } catch (IOException e){
             System.out.println("Can't load images");
         }
