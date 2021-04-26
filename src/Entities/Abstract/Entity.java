@@ -5,6 +5,7 @@ import Components.MovementComponent;
 public abstract class Entity {
 
     protected MovementComponent movementComponent;
+    // The size of the entity in game coordinates => collision detection
 
     public MovementComponent getMovementComponent() {
         return movementComponent;

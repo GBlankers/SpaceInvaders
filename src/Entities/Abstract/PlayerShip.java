@@ -4,8 +4,11 @@ import Components.MovementComponent;
 
 public abstract class PlayerShip extends Player {
     protected int health;
+    public static double gameWidth;
+    public static double gameHeight;
 
     public PlayerShip(double x, double y){
+
         movementComponent = new MovementComponent();
         movementComponent.setX(x);
         movementComponent.setY(y);

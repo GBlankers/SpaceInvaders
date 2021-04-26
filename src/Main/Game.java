@@ -18,10 +18,13 @@ public class Game {
     private final Input input;
 
     // Default
+    // GameWidth => how many entities can be next to each other
     private int gameWidth = 9;
+    // GameHeight => how many entities can be above each other
     private int gameHeight = 7;
     private int fps = 16;
 
+    // Main loop control
     private boolean isRunning = false;
 
     private int score = 0;
@@ -77,6 +80,8 @@ public class Game {
                     str = Arrays.asList(data.split(","));
                     enemies.add(abs.createEnemyShip(Integer.parseInt(str.get(0)), Integer.parseInt(str.get(1))));
                 }
+            } else {
+                defaultEnemyCreation();
             }
 
         } catch (FileNotFoundException e){
@@ -86,19 +91,14 @@ public class Game {
             abs.engineSetGameDimensions(gameWidth, gameHeight);
 
             // Default values if the property file cannot be found
-            enemies.add(abs.createEnemyShip(-3, -3));
-            enemies.add(abs.createEnemyShip(-2, -3));
-            enemies.add(abs.createEnemyShip(-1, -3));
-            enemies.add(abs.createEnemyShip(0, -3));
-            enemies.add(abs.createEnemyShip(1, -3));
-            enemies.add(abs.createEnemyShip(2, -3));
-            enemies.add(abs.createEnemyShip(3, -3));
-            enemies.add(abs.createEnemyShip(-2, -2));
-            enemies.add(abs.createEnemyShip(-1, -2));
-            enemies.add(abs.createEnemyShip(0, -2));
-            enemies.add(abs.createEnemyShip(1, -2));
-            enemies.add(abs.createEnemyShip(2, -2));
+            defaultEnemyCreation();
         }
+
+        EnemyShip.gameWidth = 0.7;
+        EnemyShip.gameHeight = 0.7;
+        PlayerShip.gameWidth = 0.7;
+        PlayerShip.gameHeight = 0.7;
+
 
         speedPlayer = gameWidth/(fps*1.8);
         speedEnemyX = gameWidth/(fps*6.0);
@@ -110,6 +110,25 @@ public class Game {
         abs.engineRender();
         // Execute the main loop
         run();
+    }
+
+    /**
+     * If there is no property file or this file is badly structured, make
+     * a default array of enemies
+     */
+    private void defaultEnemyCreation() {
+        enemies.add(abs.createEnemyShip(-3, -3));
+        enemies.add(abs.createEnemyShip(-2, -3));
+        enemies.add(abs.createEnemyShip(-1, -3));
+        enemies.add(abs.createEnemyShip(0, -3));
+        enemies.add(abs.createEnemyShip(1, -3));
+        enemies.add(abs.createEnemyShip(2, -3));
+        enemies.add(abs.createEnemyShip(3, -3));
+        enemies.add(abs.createEnemyShip(-2, -2));
+        enemies.add(abs.createEnemyShip(-1, -2));
+        enemies.add(abs.createEnemyShip(0, -2));
+        enemies.add(abs.createEnemyShip(1, -2));
+        enemies.add(abs.createEnemyShip(2, -2));
     }
 
     /**
@@ -215,6 +234,13 @@ public class Game {
      */
     public void checkEnemyHit(){
         Iterator<PlayerBullet> itBullet = playerBullets.listIterator();
+        double esX = 0;
+        double esY = 0;
+        if(!enemies.isEmpty()){
+
+            esX = EnemyShip.gameWidth;
+            esY = EnemyShip.gameHeight;
+        }
         Iterator<EnemyShip> itEnemyShip;
         while (itBullet.hasNext()){
             int hit = 0;
@@ -222,7 +248,7 @@ public class Game {
             itEnemyShip = enemies.listIterator();
             while (itEnemyShip.hasNext()){
                 MovementComponent mcEnemy = itEnemyShip.next().getMovementComponent();
-                if (isInRange(mcEnemy, mcBullet)){
+                if (isInRange(mcEnemy, mcBullet,esX, esY)){
                     hit = 1;
                     score++;
                     break;
@@ -244,7 +270,7 @@ public class Game {
 
         while(itBullet.hasNext()){
             MovementComponent mcBullet = itBullet.next().getMovementComponent();
-            if(isInRange(playerShip.getMovementComponent(), mcBullet)){
+            if(isInRange(playerShip.getMovementComponent(), mcBullet, PlayerShip.gameWidth, PlayerShip.gameHeight)){
                 playerShip.hit();
                 score --;
                 itBullet.remove();
@@ -303,10 +329,9 @@ public class Game {
      * @param mcBullet movement component of the bullet
      * @return boolean corresponding to a hit or not
      */
-    public boolean isInRange(MovementComponent mcTarget, MovementComponent mcBullet){
-        double es = abs.getEntitySize()*0.4;
-        if (mcTarget.getX()- es<= mcBullet.getX() && mcBullet.getX() <= mcTarget.getX()+es){
-            return mcTarget.getY() - es <= mcBullet.getY() && mcBullet.getY() <= mcTarget.getY()+es;
+    public boolean isInRange(MovementComponent mcTarget, MovementComponent mcBullet, double esX, double esY){
+        if (mcTarget.getX()- esX<= mcBullet.getX() && mcBullet.getX() <= mcTarget.getX()+esX){
+            return mcTarget.getY() - esY <= mcBullet.getY() && mcBullet.getY() <= mcTarget.getY()+esY;
         }
         return false;
     }
