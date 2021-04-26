@@ -1,11 +1,9 @@
 //TODO: Correct use of abstract factory?
-//TODO: levels
 //TODO: power-ups
 
 package Main;
 
 import Factories.*;
-
 import java.io.File;
 
 public class Main {

@@ -5,10 +5,10 @@ import Components.MovementComponent;
 public abstract class PlayerShip extends Player {
     protected int health;
 
-    public PlayerShip(){
+    public PlayerShip(double x, double y){
         movementComponent = new MovementComponent();
-        movementComponent.setX((4));
-        movementComponent.setY((6));
+        movementComponent.setX(x);
+        movementComponent.setY(y);
         health = 3;
     }
 

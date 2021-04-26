@@ -16,10 +16,9 @@ public class J2DEnemyBullet extends EnemyBullet {
     @Override
     public void visualise() {
         Graphics2D g2d = engine.getG2d();
-        double size = engine.getSize();
 
-        int x = (int) (movementComponent.getX()*size+size/4);
-        int y = (int) (movementComponent.getY()*size+size/4);
+        int x = (int) (movementComponent.getX()*engine.sizeX + engine.enemyBullet.getWidth()/2);
+        int y = (int) (movementComponent.getY()*engine.sizeY - engine.enemyBullet.getHeight()/2);
 
         // Place the bullet in the middle of the square grid
         g2d.drawImage(engine.enemyBullet, x, y, null);

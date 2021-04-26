@@ -17,8 +17,10 @@ public class Game {
     private final GameTimer gameTimer;
     private final Input input;
 
-    private final int gameWidth = 9;
-    private final int gameHeight = 7;
+    // Default
+    private int gameWidth = 9;
+    private int gameHeight = 7;
+    private int fps = 16;
 
     private boolean isRunning = false;
 
@@ -27,18 +29,22 @@ public class Game {
     private boolean lvls = false;
     private int lvlNr = 1;
 
+    private double speedPlayer;
+    private double speedEnemyX;
+    private double speedEnemyY;
+
     private final ArrayList<EnemyShip> enemies = new ArrayList<>();
     private final ArrayList<PlayerBullet> playerBullets = new ArrayList<>();
     private final ArrayList<EnemyBullet> enemyBullets = new ArrayList<>();
     private PlayerShip playerShip;
 
-    private File properties;
+    private final File properties;
 
     public Game(AbstractFactory abs, File properties){
         this.abs = abs;
         abs.createEngine();
         this.input = abs.createInput();
-        this.gameTimer = new GameTimer(16);
+        this.gameTimer = new GameTimer(fps);
         this.properties = properties;
     }
 
@@ -49,11 +55,19 @@ public class Game {
         abs.engineStart();
 
         try {
+            // read the property file
             Scanner propReader = new Scanner(properties);
             String data = propReader.nextLine();
             List<String> str = Arrays.asList(data.split(","));
 
-            abs.engineSetGameDimensions(Integer.parseInt(str.get(0)), Integer.parseInt(str.get(1)));
+            gameWidth = Integer.parseInt(str.get(0));
+            gameHeight = Integer.parseInt(str.get(1));
+            data = propReader.nextLine();
+            fps = Integer.parseInt(data);
+
+            gameTimer.changeFps(fps);
+
+            abs.engineSetGameDimensions(gameWidth, gameHeight);
             if(propReader.nextLine().equals("lvl1")){
                 lvls = true;
                 while(propReader.hasNext()){
@@ -66,7 +80,7 @@ public class Game {
             }
 
         } catch (FileNotFoundException e){
-            System.out.println(Arrays.toString(e.getStackTrace()));
+            System.out.println(e.getMessage());
 
             // x:[-4;4] y:[-3;3]
             abs.engineSetGameDimensions(gameWidth, gameHeight);
@@ -86,7 +100,11 @@ public class Game {
             enemies.add(abs.createEnemyShip(2, -2));
         }
 
-        playerShip = abs.createPlayerShip();
+        speedPlayer = gameWidth/(fps*1.8);
+        speedEnemyX = gameWidth/(fps*6.0);
+        speedEnemyY = gameHeight/(fps*3.0);
+
+        playerShip = abs.createPlayerShip(gameWidth/2.0, gameHeight-1);
 
         // Make the entities visible
         abs.engineRender();
@@ -98,6 +116,7 @@ public class Game {
      * Main Game loop
      */
     public void run(){
+        boolean loadLevel = false;
         isRunning = true;
         Input.Inputs direction;
 
@@ -105,21 +124,35 @@ public class Game {
             // Start timer
             gameTimer.tick();
 
+            // Stop the game or load a new level
             if(enemies.isEmpty()){
-                if(!lvls){
-                    abs.gameOverWin();
-                    isRunning = false;
+                enemyBullets.clear();
+                if(!loadLevel){
+                    if(!lvls){
+                        abs.gameOverWin();
+                        isRunning = false;
+                    } else {
+                        lvlNr ++;
+                        if(nextLevelAvailable()){
+                            speedEnemyY = speedEnemyY*2;
+                            abs.nextLevel();
+                            loadLevel = true;
+                        } else {
+                            abs.gameOverWin();
+                            isRunning = false;
+                        }
+                    }
                 } else {
-                    lvlNr ++;
-                    loadNewLevel();
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e){
-                        System.out.println(e.getMessage());
+                    abs.nextLevel();
+                    if(input.inputAvailable()){
+                        loadNewLevel();
+                        loadLevel = false;
                     }
                 }
+
             }
 
+            // Check if the player is dead
             if (playerShip.getHealth() == 0){
                 abs.gameOverLose();
                 isRunning = false;
@@ -132,11 +165,11 @@ public class Game {
                 direction = input.getInput();
                 if(direction == Input.Inputs.LEFT){
                     if(playerShip.getMovementComponent().getX() > 0) {
-                        playerShip.setDirection(-0.4, 0);
+                        playerShip.setDirection(-speedPlayer, 0);
                     }
                 } else if(direction == Input.Inputs.RIGHT){
                     if(playerShip.getMovementComponent().getX() < gameWidth-1){
-                        playerShip.setDirection(0.4, 0);
+                        playerShip.setDirection(speedPlayer, 0);
                     }
                 } else if(direction == Input.Inputs.SHOOT){
                     playerBullets.add(abs.createPlayerBullet(playerShip.getMovementComponent().getX(), playerShip.getMovementComponent().getY()));
@@ -236,21 +269,21 @@ public class Game {
             }
             if(eps.getMovementComponent().getX() <= 0 & eps.getMovementComponent().getDx() < 0){
                 dx = 0;
-                dy = 0.2;
+                dy = speedEnemyY; // 0.2
                 change = true;
                 break;
             }else if(eps.getMovementComponent().getX() <= 0 & eps.getMovementComponent().getDx() == 0){
-                dx = 0.07;
+                dx = speedEnemyX; // 0.07
                 dy = 0;
                 change = true;
                 break;
             }else if(eps.getMovementComponent().getX() >= gameWidth - 1 & eps.getMovementComponent().getDx() > 0){
                 dx = 0;
-                dy = 0.2;
+                dy = speedEnemyY;
                 change = true;
                 break;
             }else if(eps.getMovementComponent().getX() >= gameWidth -1 & eps.getMovementComponent().getDx() == 0){
-                dx = -0.07;
+                dx = -speedEnemyX;
                 dy = 0;
                 change = true;
                 break;
@@ -293,6 +326,34 @@ public class Game {
         }
     }
 
+    /**
+     * Read the property file to check if there are new levels
+     * @return boolean if there are new levels
+     */
+    public boolean nextLevelAvailable(){
+        try {
+            Scanner propScan = new Scanner(properties);
+            String level = "lvl"+lvlNr;
+            boolean levelAvailable = false;
+            String data;
+
+            while(propScan.hasNext()) {
+                data = propScan.nextLine();
+                if (data.equals(level)) {
+                    levelAvailable = true;
+                    break;
+                }
+            }
+            return levelAvailable;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Load the enemies to start a new level
+     */
     public void loadNewLevel(){
         try{
             Scanner propScan = new Scanner(properties);

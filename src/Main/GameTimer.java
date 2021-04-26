@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
  * The GameTimer class will provide a way to have a constant time per frame
  */
 public class GameTimer {
-    private final long timePerFrame;
+    private long timePerFrame;
     private long start, last;
 
     /**
@@ -47,5 +47,13 @@ public class GameTimer {
         } catch (InterruptedException e) {
             System.out.println(Arrays.toString(e.getStackTrace()));
         }
+    }
+
+    /**
+     * Change the fps to a new value
+     * @param fps the new fps value
+     */
+    public void changeFps(long fps){
+        this.timePerFrame = TimeUnit.SECONDS.toMillis(1)/fps;
     }
 }

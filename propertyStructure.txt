@@ -1,0 +1,8 @@
+gameWidth,gameHeight
+lvl1
+coordinates of enemies
+Q
+lvl2
+.
+.
+.

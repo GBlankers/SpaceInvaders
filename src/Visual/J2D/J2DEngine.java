@@ -18,8 +18,8 @@ public class J2DEngine extends Engine {
     private final JFrame mainFrame;
     private final JPanel gamePanel;
 
-    private final int screenWidth;
-    private final int screenHeight;
+    public final int screenWidth;
+    public final int screenHeight;
 
     private Graphics2D g2d;
     private BufferedImage g2dImage;
@@ -31,11 +31,13 @@ public class J2DEngine extends Engine {
     public BufferedImage enemyBullet;
 
     private int size;
+    public int sizeX;
+    public int sizeY;
     private int imageSize;
 
     private J2DEngine() {
         super();
-        this.screenWidth = 1200;
+        this.screenWidth = 1000;
         this.screenHeight = 1000;
         mainFrame = new JFrame();
         gamePanel = new GamePanel();
@@ -101,7 +103,9 @@ public class J2DEngine extends Engine {
     public void setGameDimensions(int gameWidth, int gameHeight){
         J2DEngine.gameWidth = gameWidth;
         J2DEngine.gameHeight = gameHeight;
-        this.size = Math.min(screenWidth/gameWidth, screenHeight/gameHeight);
+        sizeX = screenWidth/gameWidth;
+        sizeY = screenHeight/gameHeight;
+        this.size = Math.min(sizeX, sizeY);
         this.imageSize = (int) (size*0.8);
         loadImages();
         try {

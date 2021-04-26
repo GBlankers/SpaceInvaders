@@ -8,8 +8,8 @@ import java.awt.*;
 public class J2DPlayerShip extends PlayerShip {
     private final J2DEngine engine;
 
-    public J2DPlayerShip() {
-        super();
+    public J2DPlayerShip(double x, double y) {
+        super(x, y);
         engine = J2DEngine.getInstance();
     }
 
@@ -17,8 +17,9 @@ public class J2DPlayerShip extends PlayerShip {
     public void visualise(){
         Graphics2D g2d = engine.getG2d();
         double size = engine.getSize();
-        int x = (int) (movementComponent.getX()*size);
-        int y = (int) (movementComponent.getY()*size);
+
+        int x = (int) (movementComponent.getX()*engine.sizeX);
+        int y = (int) ((movementComponent.getY()*engine.sizeY) - engine.imagePlayerShip.getHeight()/2);
         g2d.drawImage(engine.imagePlayerShip, x, y, null);
 
         for(int i = 0; i< this.health; i++){
