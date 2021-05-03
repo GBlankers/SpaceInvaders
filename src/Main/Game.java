@@ -94,6 +94,8 @@ public class Game {
             defaultEnemyCreation();
         }
 
+        // entities are spaced 1 unit from each other in game coordinates
+        // Entities will take up 0.7 space => needed for collision detection
         EnemyShip.gameWidth = 0.7;
         EnemyShip.gameHeight = 0.7;
         PlayerShip.gameWidth = 0.7;
