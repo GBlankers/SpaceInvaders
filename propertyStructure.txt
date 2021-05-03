@@ -1,3 +1,4 @@
+// The property file has to be located in the res folder
 gameWidth,gameHeight
 lvl1
 coordinates of enemies

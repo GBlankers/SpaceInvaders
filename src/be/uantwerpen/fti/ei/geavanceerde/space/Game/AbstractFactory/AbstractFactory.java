@@ -5,24 +5,26 @@ import be.uantwerpen.fti.ei.geavanceerde.space.Game.AstractEntities.EnemyShip;
 import be.uantwerpen.fti.ei.geavanceerde.space.Game.AstractEntities.PlayerBullet;
 import be.uantwerpen.fti.ei.geavanceerde.space.Game.AstractEntities.PlayerShip;
 import be.uantwerpen.fti.ei.geavanceerde.space.Game.Interaction.Input;
-import be.uantwerpen.fti.ei.geavanceerde.space.Visual.Engine;
 
+/**
+ * Abstract factory used for abstract entity creation, controlling settings of the visual engine
+ * and updating visual game information (game over, score, ...)
+ */
 public abstract class AbstractFactory {
 
-    // Entity creation
     /**
-     * Create a new player ship
+     * Create a new abstract player ship
      * @param x the x coordinate
      * @param y the y coordinate
-     * @return a new player ship at the given coordinates
+     * @return a new abstract player ship at the given coordinates
      */
     public abstract PlayerShip createPlayerShip(double x, double y);
 
     /**
-     * Create a new enemy ship
+     * Create a new abstract enemy ship
      * @param x the x coordinate
      * @param y the y coordinate
-     * @return a new enemy ship at the given coordinates
+     * @return a new abstract enemy ship at the given coordinates
      */
     public abstract EnemyShip createEnemyShip(double x, double y);
 
@@ -44,10 +46,9 @@ public abstract class AbstractFactory {
 
     // Engine control
     /**
-     * Create the engine to visualise the game
-     * @return an engine to visualise
+     * Initialise the engine to visualise the game
      */
-    public abstract Engine createEngine();
+    public abstract void createEngine();
 
     /**
      * Render all the objects that have been drawn to the current frame
@@ -96,11 +97,4 @@ public abstract class AbstractFactory {
      * Display a message to go to the next level
      */
     public abstract void nextLevel();
-
-    // Entity Size
-    /**
-     * Get the size of the entities to make collision detection possible
-     * @return the size of the entities in the visual part
-     */
-    public abstract double getEntitySize();
 }

@@ -12,9 +12,15 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 
+/**
+ * The main game class containing al the game logic, game loop, collision detection, ...
+ */
 public class Game {
+    // Abstract factory to create entities, control the visual settings, ...
     private final AbstractFactory abs;
+    // Game timer to control the time each frame takes
     private final GameTimer gameTimer;
+    // Input to control the player ship
     private final Input input;
 
     // Default
@@ -22,72 +28,97 @@ public class Game {
     private int gameWidth = 9;
     // GameHeight => how many entities can be above each other
     private int gameHeight = 7;
+    // frames per second
     private int fps = 16;
 
     // Main loop control
     private boolean isRunning = false;
 
+    // Player score
     private int score = 0;
 
+    // Are there levels
     private boolean lvls = false;
+    // Which level is running
     private int lvlNr = 1;
 
+    // instance variable to have control over the speed of the entities
+    // This way the speed can be altered if the fps of game size is changed
     private double speedPlayer;
     private double speedEnemyX;
     private double speedEnemyY;
 
+    // Containers to keep track of all the entities on screen
     private final ArrayList<EnemyShip> enemies = new ArrayList<>();
     private final ArrayList<PlayerBullet> playerBullets = new ArrayList<>();
     private final ArrayList<EnemyBullet> enemyBullets = new ArrayList<>();
     private PlayerShip playerShip;
 
+    // Property file
     private final File properties;
 
+    /**
+     * Constructor to initialize the game
+     * @param abs abstract factory used to make entities, control the visual settings, ...
+     * @param properties property file to control the settings
+     */
     public Game(AbstractFactory abs, File properties){
         this.abs = abs;
+        // initialise the engine
         abs.createEngine();
+        // create input
         this.input = abs.createInput();
+        // Game timer to control the frame time
         this.gameTimer = new GameTimer(fps);
+        // property file for the settings
         this.properties = properties;
     }
 
     /**
-     * Initialise the engine, entities, render the screen and start the main loop
+     * Initialise the game through the property file, create entities, render the screen and start the main loop
      */
     public void start(){
+        // the engine will start and create a frame and panel
         abs.engineStart();
 
         try {
             // read the property file
             Scanner propReader = new Scanner(properties);
+            // The property file has to be structured indicated by propertyStructure.txt
             String data = propReader.nextLine();
             List<String> str = Arrays.asList(data.split(","));
 
             gameWidth = Integer.parseInt(str.get(0));
             gameHeight = Integer.parseInt(str.get(1));
+
             data = propReader.nextLine();
             fps = Integer.parseInt(data);
 
             gameTimer.changeFps(fps);
 
             abs.engineSetGameDimensions(gameWidth, gameHeight);
+
+            // Are there levels given in the property file?
             if(propReader.nextLine().equals("lvl1")){
                 lvls = true;
+                // read the level and create all the enemies
                 while(propReader.hasNext()){
                     data = propReader.nextLine();
+                    // stop condition
                     if(data.equals("Q"))
                         break;
                     str = Arrays.asList(data.split(","));
                     enemies.add(abs.createEnemyShip(Integer.parseInt(str.get(0)), Integer.parseInt(str.get(1))));
                 }
             } else {
+                // if there are no levels the default enemy structure is used
                 defaultEnemyCreation();
             }
-
+        // no file found => default settings
         } catch (FileNotFoundException e){
             System.out.println(e.getMessage());
 
-            // x:[-4;4] y:[-3;3]
+            // x:[0;9] y:[0;7]
             abs.engineSetGameDimensions(gameWidth, gameHeight);
 
             // Default values if the property file cannot be found
@@ -101,11 +132,14 @@ public class Game {
         PlayerShip.gameWidth = 0.7;
         PlayerShip.gameHeight = 0.7;
 
-
+        // Speed of the entities dependent on the height of the screen and the fps
+        EnemyBullet.speed = gameHeight/(fps*3.0);
+        PlayerBullet.speed = -gameHeight/(fps*2.0);
         speedPlayer = gameWidth/(fps*1.8);
         speedEnemyX = gameWidth/(fps*6.0);
         speedEnemyY = gameHeight/(fps*3.0);
 
+        // create a playerShip at the bottom of the screen in the middle
         playerShip = abs.createPlayerShip(gameWidth/2.0, gameHeight-1);
 
         // Make the entities visible
@@ -119,22 +153,22 @@ public class Game {
      * a default array of enemies
      */
     private void defaultEnemyCreation() {
-        enemies.add(abs.createEnemyShip(-3, -3));
-        enemies.add(abs.createEnemyShip(-2, -3));
-        enemies.add(abs.createEnemyShip(-1, -3));
-        enemies.add(abs.createEnemyShip(0, -3));
-        enemies.add(abs.createEnemyShip(1, -3));
-        enemies.add(abs.createEnemyShip(2, -3));
-        enemies.add(abs.createEnemyShip(3, -3));
-        enemies.add(abs.createEnemyShip(-2, -2));
-        enemies.add(abs.createEnemyShip(-1, -2));
-        enemies.add(abs.createEnemyShip(0, -2));
-        enemies.add(abs.createEnemyShip(1, -2));
-        enemies.add(abs.createEnemyShip(2, -2));
+        enemies.add(abs.createEnemyShip(1, 0));
+        enemies.add(abs.createEnemyShip(2, 0));
+        enemies.add(abs.createEnemyShip(3, 0));
+        enemies.add(abs.createEnemyShip(4, 0));
+        enemies.add(abs.createEnemyShip(5, 0));
+        enemies.add(abs.createEnemyShip(6, 0));
+        enemies.add(abs.createEnemyShip(7, 0));
+        enemies.add(abs.createEnemyShip(2, 1));
+        enemies.add(abs.createEnemyShip(3, 1));
+        enemies.add(abs.createEnemyShip(4, 1));
+        enemies.add(abs.createEnemyShip(5, 1));
+        enemies.add(abs.createEnemyShip(6, 1));
     }
 
     /**
-     * be.uantwerpen.fti.ei.geavanceerde.space.Game.Main Game loop
+     * Main Game loop
      */
     public void run(){
         boolean loadLevel = false;
@@ -147,16 +181,22 @@ public class Game {
 
             // Stop the game or load a new level
             if(enemies.isEmpty()){
+                // Delete all the enemy bullets from screen
                 enemyBullets.clear();
                 if(!loadLevel){
+                    // There are no levels => no enemies = game over
                     if(!lvls){
                         abs.gameOverWin();
                         isRunning = false;
-                    } else {
+                    } else { // load the new level
                         lvlNr ++;
+                        // Check if there is another level in the property file
                         if(nextLevelAvailable()){
+                            // speed up the enemies
                             speedEnemyY = speedEnemyY*2;
+                            // show the next level text
                             abs.nextLevel();
+                            // new level can be loaded
                             loadLevel = true;
                         } else {
                             abs.gameOverWin();
@@ -165,12 +205,12 @@ public class Game {
                     }
                 } else {
                     abs.nextLevel();
+                    // Wait for user input to load the level
                     if(input.inputAvailable()){
                         loadNewLevel();
                         loadLevel = false;
                     }
                 }
-
             }
 
             // Check if the player is dead
@@ -182,8 +222,12 @@ public class Game {
             // default movement = stay still
             playerShip.setDirection(0, 0);
 
+            // check if there is user input
             if(input.inputAvailable()){
+                // Get the available input
                 direction = input.getInput();
+
+                // Change the player ship movement depending on the input or shoot or stop the game
                 if(direction == Input.Inputs.LEFT){
                     if(playerShip.getMovementComponent().getX() > 0) {
                         playerShip.setDirection(-speedPlayer, 0);
@@ -209,12 +253,18 @@ public class Game {
             Stream.concat(Stream.concat(Stream.concat(playerBullets.stream(), enemies.stream()), Stream.of(playerShip)), enemyBullets.stream())
                     .forEach(Entity -> Entity.setMovementComponent(MovementUpdater.update(Entity.getMovementComponent())));
 
+            // Make some enemies shoot
             enemyShoot();
+            // Check if the enemies are hit by a player bullet
             checkEnemyHit();
+            // Check if the player is hit by an enemy bullet
             checkPlayerHit();
+            // Delete off screen bullets
             bulletCleanUp();
 
+            // Update the score text
             abs.updateScore(score);
+            // render the engine
             abs.engineRender();
             // end timer
             gameTimer.tock();
@@ -244,6 +294,8 @@ public class Game {
             esY = EnemyShip.gameHeight;
         }
         Iterator<EnemyShip> itEnemyShip;
+        // go over all the bullets and enemies and check if there are bullets in range of an enemy
+        // if this is the case, update the score and delete both the bullet and the enemy
         while (itBullet.hasNext()){
             int hit = 0;
             MovementComponent mcBullet = itBullet.next().getMovementComponent();
@@ -270,6 +322,8 @@ public class Game {
     public void checkPlayerHit(){
         Iterator<EnemyBullet> itBullet = enemyBullets.iterator();
 
+        // Check all the enemy bullet and see if there is one in range of the playership, if
+        // this is the case, decrease the score, decrease the health and delete the bullet
         while(itBullet.hasNext()){
             MovementComponent mcBullet = itBullet.next().getMovementComponent();
             if(isInRange(playerShip.getMovementComponent(), mcBullet, PlayerShip.gameWidth, PlayerShip.gameHeight)){
@@ -329,6 +383,8 @@ public class Game {
      * Check if a bullet is in range of a target
      * @param mcTarget movement component of a target entity
      * @param mcBullet movement component of the bullet
+     * @param esX the x size of the entity in game coordinates
+     * @param esY the y size of the entity in game coordinates
      * @return boolean corresponding to a hit or not
      */
     public boolean isInRange(MovementComponent mcTarget, MovementComponent mcBullet, double esX, double esY){
@@ -342,6 +398,7 @@ public class Game {
      * Chose an enemy to shoot a bullet
      */
     public void enemyShoot(){
+        // If there are enemies and if a random condition is met, chose a random enemy to shoot a bullet
         if(!enemies.isEmpty()){
             int randomNum = ThreadLocalRandom.current().nextInt(0, 13 + 1);
 

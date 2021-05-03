@@ -8,11 +8,19 @@ import java.awt.*;
 public class J2DPlayerShip extends PlayerShip {
     private final J2DEngine engine;
 
+    /**
+     * Constructor to set the coordinates
+     * @param x the initial x coordinate
+     * @param y the initial y coordinate
+     */
     public J2DPlayerShip(double x, double y) {
         super(x, y);
         engine = J2DEngine.getInstance();
     }
 
+    /**
+     * Method to visualise the player ship in the J2D engine
+     */
     @Override
     public void visualise(){
         Graphics2D g2d = engine.getG2d();

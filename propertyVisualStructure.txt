@@ -1,0 +1,2 @@
+// The property visual file has to be located in the res folder
+screenWidth,screenHeight
