@@ -1,18 +1,12 @@
 package be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D;
 
 // Abstract
-import be.uantwerpen.fti.ei.geavanceerde.space.Game.AstractEntities.EnemyBullet;
-import be.uantwerpen.fti.ei.geavanceerde.space.Game.AstractEntities.EnemyShip;
-import be.uantwerpen.fti.ei.geavanceerde.space.Game.AstractEntities.PlayerBullet;
-import be.uantwerpen.fti.ei.geavanceerde.space.Game.AstractEntities.PlayerShip;
+import be.uantwerpen.fti.ei.geavanceerde.space.Game.AstractEntities.*;
 import be.uantwerpen.fti.ei.geavanceerde.space.Game.AbstractFactory.AbstractFactory;
 import be.uantwerpen.fti.ei.geavanceerde.space.Game.Interaction.Input;
 // Java 2D
+import be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D.Entities.*;
 import be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D.Input.KeyboardInput;
-import be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D.Entities.J2DEnemyBullet;
-import be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D.Entities.J2DEnemyShip;
-import be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D.Entities.J2DPlayerBullet;
-import be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D.Entities.J2DPlayerShip;
 
 import java.awt.*;
 
@@ -64,6 +58,17 @@ public class J2DFactory extends AbstractFactory {
     @Override
     public EnemyBullet createEnemyBullet(double x, double y) {
         return new J2DEnemyBullet(x, y);
+    }
+
+    /**
+     * Create a new J2D positive bonus, this will have a visualise method for the J2D engine
+     * @param x the x coordinate
+     * @param y the y coordinate
+     * @return a new positive bonus at the given coordinates
+     */
+    @Override
+    public PositiveBonus createPositiveBonus(double x, double y) {
+        return new J2DPositiveBonus(x, y);
     }
 
     /**

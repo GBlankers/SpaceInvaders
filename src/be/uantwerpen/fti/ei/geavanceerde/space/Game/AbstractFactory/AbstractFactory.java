@@ -1,9 +1,6 @@
 package be.uantwerpen.fti.ei.geavanceerde.space.Game.AbstractFactory;
 
-import be.uantwerpen.fti.ei.geavanceerde.space.Game.AstractEntities.EnemyBullet;
-import be.uantwerpen.fti.ei.geavanceerde.space.Game.AstractEntities.EnemyShip;
-import be.uantwerpen.fti.ei.geavanceerde.space.Game.AstractEntities.PlayerBullet;
-import be.uantwerpen.fti.ei.geavanceerde.space.Game.AstractEntities.PlayerShip;
+import be.uantwerpen.fti.ei.geavanceerde.space.Game.AstractEntities.*;
 import be.uantwerpen.fti.ei.geavanceerde.space.Game.Interaction.Input;
 
 /**
@@ -43,6 +40,14 @@ public abstract class AbstractFactory {
      * @return a new enemy bullet at the given coordinates
      */
     public abstract EnemyBullet createEnemyBullet(double x, double y);
+
+    /**
+     * Create a new positive bonus
+     * @param x the x coordinate
+     * @param y the y coordinate
+     * @return a new positive bonus at the given coordinates
+     */
+    public abstract PositiveBonus createPositiveBonus(double x, double y);
 
     // Engine control
     /**

@@ -52,6 +52,7 @@ public class Game {
     private final ArrayList<EnemyShip> enemies = new ArrayList<>();
     private final ArrayList<PlayerBullet> playerBullets = new ArrayList<>();
     private final ArrayList<EnemyBullet> enemyBullets = new ArrayList<>();
+    private final ArrayList<PositiveBonus> positiveBonuses = new ArrayList<>();
     private PlayerShip playerShip;
 
     // Property file
@@ -135,6 +136,7 @@ public class Game {
         // Speed of the entities dependent on the height of the screen and the fps
         EnemyBullet.speed = gameHeight/(fps*3.0);
         PlayerBullet.speed = -gameHeight/(fps*2.0);
+        PositiveBonus.speed = gameHeight/(fps*3.0);
         speedPlayer = gameWidth/(fps*1.8);
         speedEnemyX = gameWidth/(fps*6.0);
         speedEnemyY = gameHeight/(fps*3.0);
@@ -247,11 +249,12 @@ public class Game {
             // Set the direction of the enemies
             enemyMovement();
             // Visualise the entities
-            Stream.concat(Stream.concat(Stream.concat(playerBullets.stream(), enemies.stream()), Stream.of(playerShip)), enemyBullets.stream())
-                    .forEach(Entity::visualise);
+            Stream.concat(positiveBonuses.stream(),Stream.concat(Stream.concat(Stream.concat(playerBullets.stream(), enemies.stream()),
+                    Stream.of(playerShip)), enemyBullets.stream())).forEach(Entity::visualise);
             // Move the entities
-            Stream.concat(Stream.concat(Stream.concat(playerBullets.stream(), enemies.stream()), Stream.of(playerShip)), enemyBullets.stream())
-                    .forEach(Entity -> Entity.setMovementComponent(MovementUpdater.update(Entity.getMovementComponent())));
+            Stream.concat(positiveBonuses.stream(), Stream.concat(Stream.concat(Stream.concat(playerBullets.stream(),
+                    enemies.stream()), Stream.of(playerShip)), enemyBullets.stream())).forEach(Entity ->
+                    Entity.setMovementComponent(MovementUpdater.update(Entity.getMovementComponent())));
 
             // Make some enemies shoot
             enemyShoot();
@@ -261,6 +264,10 @@ public class Game {
             checkPlayerHit();
             // Delete off screen bullets
             bulletCleanUp();
+            // Spawn bonuses
+            spawnBonus();
+            // Delete off screen bonuses
+            clearBonus();
 
             // Update the score text
             abs.updateScore(score);
@@ -406,6 +413,34 @@ public class Game {
                 Collections.shuffle(enemies);
                 MovementComponent mcE = enemies.get(0).getMovementComponent();
                 enemyBullets.add(abs.createEnemyBullet(mcE.getX(), mcE.getY()));
+            }
+        }
+    }
+
+    /**
+     * spawn a new bonus
+     */
+    public void spawnBonus(){
+        if(!enemies.isEmpty()){
+            if(positiveBonuses.size()==0){
+                int randomNum = ThreadLocalRandom.current().nextInt(0, 50);
+
+                if (randomNum==4){
+                    Collections.shuffle(enemies);
+                    MovementComponent mcE = enemies.get(0).getMovementComponent();
+                    positiveBonuses.add(abs.createPositiveBonus(mcE.getX(), mcE.getY()));
+                }
+            }
+        }
+    }
+
+    /**
+     * Delete the bonuses if they are off screen
+     */
+    public void clearBonus(){
+        if(!positiveBonuses.isEmpty()){
+            if(positiveBonuses.get(0).getMovementComponent().getY()>gameHeight){
+                positiveBonuses.clear();
             }
         }
     }
