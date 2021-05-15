@@ -266,6 +266,8 @@ public class Game {
             bulletCleanUp();
             // Spawn bonuses
             spawnBonus();
+            // Positive bonus collision detection
+            positiveBonusHit();
             // Delete off screen bonuses
             clearBonus();
 
@@ -337,6 +339,25 @@ public class Game {
                 playerShip.hit();
                 score --;
                 itBullet.remove();
+                break;
+            }
+        }
+    }
+
+    /**
+     * Collision detection for the positive bonusses
+     */
+    public void positiveBonusHit(){
+        Iterator<PositiveBonus> itBonus = positiveBonuses.iterator();
+
+        // Check all the bonusses and see if there is one in range of the playership, if
+        // this is the case, increase the health and delete the bonus off screen
+        while(itBonus.hasNext()){
+            MovementComponent mcBullet = itBonus.next().getMovementComponent();
+            if(isInRange(playerShip.getMovementComponent(), mcBullet, PlayerShip.gameWidth, PlayerShip.gameHeight)){
+                playerShip.regeneration();
+                score ++;
+                itBonus.remove();
                 break;
             }
         }

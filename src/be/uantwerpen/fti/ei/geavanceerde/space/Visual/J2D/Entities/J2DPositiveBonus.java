@@ -29,6 +29,6 @@ public class J2DPositiveBonus extends PositiveBonus {
         int x = (int) (movementComponent.getX()*engine.sizeX + engine.enemyBullet.getWidth()/2);
         int y = (int) (movementComponent.getY()*engine.sizeY - engine.enemyBullet.getHeight()/2);
 
-        g2d.drawImage(engine.playerBullet, x, y, null);
+        g2d.drawImage(engine.healthImage, x, y, null);
     }
 }
