@@ -2,6 +2,8 @@ package be.uantwerpen.fti.ei.geavanceerde.space.Game.Main;
 
 import be.uantwerpen.fti.ei.geavanceerde.space.Game.Components.MovementComponent;
 import be.uantwerpen.fti.ei.geavanceerde.space.Game.AbstractFactory.AbstractFactory;
+import be.uantwerpen.fti.ei.geavanceerde.space.Game.Interaction.EngineControl;
+import be.uantwerpen.fti.ei.geavanceerde.space.Game.Interaction.GameInfo;
 import be.uantwerpen.fti.ei.geavanceerde.space.Game.Interaction.Input;
 import be.uantwerpen.fti.ei.geavanceerde.space.Game.System.MovementUpdater;
 import be.uantwerpen.fti.ei.geavanceerde.space.Game.AstractEntities.*;
@@ -22,6 +24,10 @@ public class Game {
     private final GameTimer gameTimer;
     // Input to control the player ship
     private final Input input;
+    // Game info control
+    private final GameInfo gameInfo;
+    // Engine control
+    private final EngineControl engineControl;
 
     // Default
     // GameWidth => how many entities can be next to each other
@@ -66,9 +72,12 @@ public class Game {
     public Game(AbstractFactory abs, File properties){
         this.abs = abs;
         // initialise the engine
-        abs.createEngine();
+        this.engineControl = abs.createEngineControl();
+        this.engineControl.createEngine();
         // create input
         this.input = abs.createInput();
+        // Create game info
+        this.gameInfo = abs.createGameInfo();
         // Game timer to control the frame time
         this.gameTimer = new GameTimer(fps);
         // property file for the settings
@@ -80,7 +89,7 @@ public class Game {
      */
     public void start(){
         // the engine will start and create a frame and panel
-        abs.engineStart();
+        engineControl.engineStart();
 
         try {
             // read the property file
@@ -97,7 +106,7 @@ public class Game {
 
             gameTimer.changeFps(fps);
 
-            abs.engineSetGameDimensions(gameWidth, gameHeight);
+            engineControl.engineSetGameDimensions(gameWidth, gameHeight);
 
             // Are there levels given in the property file?
             if(propReader.nextLine().equals("lvl1")){
@@ -110,6 +119,13 @@ public class Game {
                         break;
                     str = Arrays.asList(data.split(","));
                     enemies.add(abs.createEnemyShip(Integer.parseInt(str.get(0)), Integer.parseInt(str.get(1))));
+                    if(Integer.parseInt(str.get(0))>gameWidth || Integer.parseInt(str.get(1))>gameHeight ||
+                            Integer.parseInt(str.get(0))<0 || Integer.parseInt(str.get(1))<0){
+                        enemies.clear();
+                        defaultEnemyCreation();
+                        System.out.println("Tried to create an enemy outside the game => default enemies are created");
+                        break;
+                    }
                 }
             } else {
                 // if there are no levels the default enemy structure is used
@@ -120,7 +136,7 @@ public class Game {
             System.out.println(e.getMessage());
 
             // x:[0;9] y:[0;7]
-            abs.engineSetGameDimensions(gameWidth, gameHeight);
+            engineControl.engineSetGameDimensions(gameWidth, gameHeight);
 
             // Default values if the property file cannot be found
             defaultEnemyCreation();
@@ -145,7 +161,7 @@ public class Game {
         playerShip = abs.createPlayerShip(gameWidth/2.0, gameHeight-1);
 
         // Make the entities visible
-        abs.engineRender();
+        engineControl.engineRender();
         // Execute the main loop
         run();
     }
@@ -183,12 +199,14 @@ public class Game {
 
             // Stop the game or load a new level
             if(enemies.isEmpty()){
-                // Delete all the enemy bullets from screen
+                // Delete all the entities from screen
                 enemyBullets.clear();
+                playerBullets.clear();
+                positiveBonuses.clear();
                 if(!loadLevel){
                     // There are no levels => no enemies = game over
                     if(!lvls){
-                        abs.gameOverWin();
+                        gameInfo.showGameOverWin();
                         isRunning = false;
                     } else { // load the new level
                         lvlNr ++;
@@ -197,27 +215,29 @@ public class Game {
                             // speed up the enemies
                             speedEnemyY = speedEnemyY*2;
                             // show the next level text
-                            abs.nextLevel();
+                            gameInfo.showNextLevelMessage();
                             // new level can be loaded
                             loadLevel = true;
                         } else {
-                            abs.gameOverWin();
+                            gameInfo.showGameOverWin();
                             isRunning = false;
                         }
                     }
                 } else {
-                    abs.nextLevel();
+                    gameInfo.showNextLevelMessage();
                     // Wait for user input to load the level
                     if(input.inputAvailable()){
-                        loadNewLevel();
-                        loadLevel = false;
+                        if(input.getInput()== Input.Inputs.SHOOT){
+                            loadNewLevel();
+                            loadLevel = false;
+                        }
                     }
                 }
             }
 
             // Check if the player is dead
             if (playerShip.getHealth() == 0){
-                abs.gameOverLose();
+                gameInfo.showGameOverLose();
                 isRunning = false;
             }
 
@@ -239,7 +259,9 @@ public class Game {
                         playerShip.setDirection(speedPlayer, 0);
                     }
                 } else if(direction == Input.Inputs.SHOOT){
-                    playerBullets.add(abs.createPlayerBullet(playerShip.getMovementComponent().getX(), playerShip.getMovementComponent().getY()));
+                    if (playerBullets.size() < 5) {
+                        playerBullets.add(abs.createPlayerBullet(playerShip.getMovementComponent().getX(), playerShip.getMovementComponent().getY()));
+                    }
                 } else if(direction == Input.Inputs.STOP){
                     isRunning = false;
                     System.exit(0);
@@ -272,9 +294,9 @@ public class Game {
             clearBonus();
 
             // Update the score text
-            abs.updateScore(score);
+            gameInfo.updateScore(score);
             // render the engine
-            abs.engineRender();
+            engineControl.engineRender();
             // end timer
             gameTimer.tock();
             // Sleep to get a constant time/frame
@@ -374,7 +396,7 @@ public class Game {
         for(EnemyShip eps: enemies){
             if(eps.getMovementComponent().getY() >= gameHeight-2){
                 isRunning = false;
-                abs.gameOverLose();
+                gameInfo.showGameOverLose();
                 break;
             }
             if(eps.getMovementComponent().getX() <= 0 & eps.getMovementComponent().getDx() < 0){
