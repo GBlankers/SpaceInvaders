@@ -98,11 +98,12 @@ public class Game {
             String data = propReader.nextLine();
             List<String> str = Arrays.asList(data.split(","));
 
-            gameWidth = Integer.parseInt(str.get(0));
-            gameHeight = Integer.parseInt(str.get(1));
+            gameWidth = Integer.parseInt(str.get(1));
+            gameHeight = Integer.parseInt(str.get(2));
 
             data = propReader.nextLine();
-            fps = Integer.parseInt(data);
+            str = Arrays.asList(data.split(","));
+            fps = Integer.parseInt(str.get(1));
 
             gameTimer.changeFps(fps);
 
@@ -123,7 +124,7 @@ public class Game {
                             Integer.parseInt(str.get(0))<0 || Integer.parseInt(str.get(1))<0){
                         enemies.clear();
                         defaultEnemyCreation();
-                        System.out.println("Tried to create an enemy outside the game => default enemies are created");
+                        //System.out.println("Tried to create an enemy outside the game => default enemies are created");
                         break;
                     }
                 }
@@ -450,7 +451,7 @@ public class Game {
     public void enemyShoot(){
         // If there are enemies and if a random condition is met, chose a random enemy to shoot a bullet
         if(!enemies.isEmpty()){
-            int randomNum = ThreadLocalRandom.current().nextInt(0, 13 + 1);
+            int randomNum = ThreadLocalRandom.current().nextInt(0, (int) Math.round(fps/2.0));
 
             if (randomNum==4){
                 Collections.shuffle(enemies);

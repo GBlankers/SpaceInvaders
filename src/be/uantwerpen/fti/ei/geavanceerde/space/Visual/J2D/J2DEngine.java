@@ -60,12 +60,12 @@ public class J2DEngine extends Engine {
         super();
 
         try{
-            Scanner propReader = new Scanner(new File("res/propertiesVisual.txt"));
+            Scanner propReader = new Scanner(new File("res/J2DProperties.txt"));
             // The property file has to be structured indicated by propertyVisualStructure.txt
             String data = propReader.nextLine();
             List<String> str = Arrays.asList(data.split(","));
-            this.screenWidth = Integer.parseInt(str.get(0));
-            this.screenHeight = Integer.parseInt(str.get(1));
+            this.screenWidth = Integer.parseInt(str.get(1));
+            this.screenHeight = Integer.parseInt(str.get(2));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             // Default values
@@ -180,7 +180,7 @@ public class J2DEngine extends Engine {
      */
     private void loadImages() {
         try {
-            imagePlayerShip = ImageIO.read(new File("res/playerShip2.png"));
+            imagePlayerShip = ImageIO.read(new File("res/playerShip.png"));
             enemySprite = ImageIO.read(new File("res/alienSprite.png"));
             playerBullet = ImageIO.read(new File("res/playerBullet.png"));
             backgroundImage = ImageIO.read(new File("res/spaceBackground.png"));
