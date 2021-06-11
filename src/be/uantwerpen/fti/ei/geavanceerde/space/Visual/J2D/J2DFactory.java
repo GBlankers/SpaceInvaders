@@ -3,16 +3,19 @@ package be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D;
 // Abstract
 import be.uantwerpen.fti.ei.geavanceerde.space.Game.AstractEntities.*;
 import be.uantwerpen.fti.ei.geavanceerde.space.Game.AbstractFactory.AbstractFactory;
+import be.uantwerpen.fti.ei.geavanceerde.space.Game.Interaction.EngineControl;
+import be.uantwerpen.fti.ei.geavanceerde.space.Game.Interaction.GameInfo;
 import be.uantwerpen.fti.ei.geavanceerde.space.Game.Interaction.Input;
 // Java 2D
 import be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D.Entities.*;
-import be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D.Input.KeyboardInput;
+import be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D.Interaction.J2DEngineControl;
+import be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D.Interaction.J2DGameInfo;
+import be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D.Interaction.J2DKeyboardInput;
 
-import java.awt.*;
 
 /**
- * Java 2D factory to use the methods defined in the abstract factory to create J2D entities,
- * control the J2D engine settings and update the visual game information in a J2D frame
+ * Java 2D factory to use the methods defined in the abstract factory to create J2D objects.
+ * These objects can be entities, object to control the engine or to show info in the J2D frame
  */
 public class J2DFactory extends AbstractFactory {
 
@@ -72,37 +75,12 @@ public class J2DFactory extends AbstractFactory {
     }
 
     /**
-     * Initialise the J2D engine
+     * Create an engine control class for the J2D engine to initialise, start, render and set the game dimensions
+     * @return a J2D Engine control class
      */
     @Override
-    public void createEngine() {
-        J2DEngine.getInstance();
-    }
-
-    /**
-     * Render all the objects to the main J2D frame
-     */
-    @Override
-    public void engineRender() {
-        J2DEngine.getInstance().render();
-    }
-
-    /**
-     * Start the engine
-     */
-    @Override
-    public void engineStart() {
-        J2DEngine.getInstance().start();
-    }
-
-    /**
-     * Give the game coordinates to the visual engine to scale the images
-     * @param width max game x coordinate
-     * @param height max game y coordinate
-     */
-    @Override
-    public void engineSetGameDimensions(int width, int height) {
-        J2DEngine.getInstance().setGameDimensions(width, height);
+    public EngineControl createEngineControl() {
+        return new J2DEngineControl();
     }
 
     /**
@@ -111,65 +89,15 @@ public class J2DFactory extends AbstractFactory {
      */
     @Override
     public Input createInput() {
-        return new KeyboardInput(J2DEngine.getInstance());
+        return new J2DKeyboardInput(J2DEngine.getInstance());
     }
 
     /**
-     * Visualise the score on the J2D frame as text
-     * @param score current player score
+     * Create a J2D game info class to show game info to the user in the J2D panel
+     * @return a J2D Game info class
      */
     @Override
-    public void updateScore(int score) {
-        Graphics2D g = J2DEngine.getInstance().getG2d();
-        String text = "Score: " + score;
-        g.setFont(new Font("TimesRoman", Font.PLAIN, (int) (J2DEngine.getInstance().getSize()*0.4)));
-        FontMetrics metrics = g.getFontMetrics();
-        g.setColor(new Color(255, 255, 255));
-        g.drawString(text, 20, J2DEngine.getInstance().screenHeight - 2*metrics.getHeight());
-    }
-
-    /**
-     * Display text to inform the player the game has ended with a win
-     */
-    @Override
-    public void gameOverWin() {
-        String text = "You Win!";
-        Graphics2D g = J2DEngine.getInstance().getG2d();
-        g.setFont(new Font("TimesRoman", Font.PLAIN, (int) (J2DEngine.getInstance().getSize()*0.8)));
-        FontMetrics metrics = g.getFontMetrics();
-        g.setColor(new Color(0, 255, 0));
-        int x = (J2DEngine.getInstance().screenWidth/2) - metrics.stringWidth(text)/2;
-        int y = (J2DEngine.getInstance().screenHeight/2);
-        g.drawString("You win!", x, y);
-    }
-
-    /**
-     * Display text to inform the player the game has ended with a loss
-     */
-    @Override
-    public void gameOverLose() {
-        String text = "You Lose!";
-        Graphics2D g = J2DEngine.getInstance().getG2d();
-        g.setFont(new Font("TimesRoman", Font.PLAIN, (int) (J2DEngine.getInstance().getSize()*0.8)));
-        FontMetrics metrics = g.getFontMetrics();
-        g.setColor(new Color(255, 0, 0));
-        int x = (J2DEngine.getInstance().screenWidth/2) - metrics.stringWidth(text)/2;
-        int y = (J2DEngine.getInstance().screenHeight/2);
-        g.drawString(text, x, y);
-    }
-
-    /**
-     * Display text to inform the player the next level is going to start
-     */
-    @Override
-    public void nextLevel() {
-        String text = "Press space to continue";
-        Graphics2D g = J2DEngine.getInstance().getG2d();
-        g.setFont(new Font("TimesRoman", Font.PLAIN, (int) (J2DEngine.getInstance().getSize()*0.4)));
-        FontMetrics metrics = g.getFontMetrics();
-        g.setColor(new Color(255, 255, 255));
-        int x = (J2DEngine.getInstance().screenWidth/2) - metrics.stringWidth(text)/2;
-        int y = (J2DEngine.getInstance().screenHeight/2);
-        g.drawString(text, x, y);
+    public GameInfo createGameInfo(){
+        return new J2DGameInfo();
     }
 }

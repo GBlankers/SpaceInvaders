@@ -1,6 +1,8 @@
 package be.uantwerpen.fti.ei.geavanceerde.space.Game.AbstractFactory;
 
 import be.uantwerpen.fti.ei.geavanceerde.space.Game.AstractEntities.*;
+import be.uantwerpen.fti.ei.geavanceerde.space.Game.Interaction.EngineControl;
+import be.uantwerpen.fti.ei.geavanceerde.space.Game.Interaction.GameInfo;
 import be.uantwerpen.fti.ei.geavanceerde.space.Game.Interaction.Input;
 
 /**
@@ -9,6 +11,7 @@ import be.uantwerpen.fti.ei.geavanceerde.space.Game.Interaction.Input;
  */
 public abstract class AbstractFactory {
 
+    // Entities
     /**
      * Create a new abstract player ship
      * @param x the x coordinate
@@ -51,26 +54,10 @@ public abstract class AbstractFactory {
 
     // Engine control
     /**
-     * Initialise the engine to visualise the game
+     * Create an engine control class to control the running engine (initialise, start, render and set dimensions)
+     * @return an engine control class
      */
-    public abstract void createEngine();
-
-    /**
-     * Render all the objects that have been drawn to the current frame
-     */
-    public abstract void engineRender();
-
-    /**
-     * Start the engine
-     */
-    public abstract void engineStart();
-
-    /**
-     * Change the coordinates
-     * @param width max game x coordinate
-     * @param height max game y coordinate
-     */
-    public abstract void engineSetGameDimensions(int width, int height);
+    public abstract EngineControl createEngineControl();
 
     // Player Input
     /**
@@ -79,27 +66,10 @@ public abstract class AbstractFactory {
      */
     public abstract Input createInput();
 
-    // Score keeping
+    // Game info
     /**
-     * Visualise the score on the screen
-     * @param score current player score
+     * Create a game info class, this class will handle game messages to the user
+     * @return a game info class
      */
-    public abstract void updateScore(int score);
-
-    // Game end
-    /**
-     * Visualise the game over win state
-     */
-    public abstract void gameOverWin();
-
-    /**
-     * Visualise the game over lose state
-     */
-    public abstract void gameOverLose();
-
-    // Next Level message
-    /**
-     * Display a message to go to the next level
-     */
-    public abstract void nextLevel();
+    public abstract GameInfo createGameInfo();
 }
