@@ -6,6 +6,9 @@ import be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D.J2DEngine;
 import java.awt.*;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * J2D version of the enemy ship
+ */
 public class J2DEnemyShip extends EnemyShip {
 
     private final J2DEngine engine;

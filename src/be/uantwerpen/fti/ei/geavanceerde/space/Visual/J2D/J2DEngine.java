@@ -108,7 +108,6 @@ public class J2DEngine extends Engine {
      * Get method for the g2d object
      * @return the g2d object
      */
-    @Override
     public Graphics2D getG2d() {
         return g2d;
     }
@@ -117,7 +116,6 @@ public class J2DEngine extends Engine {
      * Get method for the main frame
      * @return the main frame
      */
-    @Override
     public JFrame getFrame() {
         return mainFrame;
     }

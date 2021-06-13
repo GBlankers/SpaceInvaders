@@ -5,6 +5,9 @@ import be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D.J2DEngine;
 
 import java.awt.*;
 
+/**
+ * J2D version of the player bullet
+ */
 public class J2DPlayerBullet extends PlayerBullet {
     private final J2DEngine engine;
 
@@ -26,7 +29,7 @@ public class J2DPlayerBullet extends PlayerBullet {
         Graphics2D g2d = engine.getG2d();
 
         // Place the bullet in the middle of the square grid
-        int x = (int) (movementComponent.getX()*engine.sizeX+ engine.sizeX/4);
+        int x = (int) (movementComponent.getX()*engine.sizeX + engine.playerBullet.getWidth()/2);
         int y = (int) (movementComponent.getY()*engine.sizeY-engine.playerBullet.getHeight());
 
         g2d.drawImage(engine.playerBullet, x, y, null);

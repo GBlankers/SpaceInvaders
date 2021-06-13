@@ -88,6 +88,7 @@ public class Game {
      * Initialise the game through the property file, create entities, render the screen and start the main loop
      */
     public void start(){
+        boolean propertyFileLoaded = false;
         // the engine will start and create a frame and panel
         engineControl.engineStart();
 
@@ -116,8 +117,10 @@ public class Game {
                 while(propReader.hasNext()){
                     data = propReader.nextLine();
                     // stop condition
-                    if(data.equals("Q"))
+                    if(data.equals("Q")){
+                        propertyFileLoaded = true;
                         break;
+                    }
                     str = Arrays.asList(data.split(","));
                     enemies.add(abs.createEnemyShip(Integer.parseInt(str.get(0)), Integer.parseInt(str.get(1))));
                     if(Integer.parseInt(str.get(0))>gameWidth || Integer.parseInt(str.get(1))>gameHeight ||
@@ -163,6 +166,13 @@ public class Game {
 
         // Make the entities visible
         engineControl.engineRender();
+        // Wait for input before starting the game
+        while (!input.inputAvailable()){
+            gameInfo.showStartMessage(propertyFileLoaded);
+            engineControl.engineRender();
+        }
+
+
         // Execute the main loop
         run();
     }
@@ -272,13 +282,9 @@ public class Game {
             // Set the direction of the enemies
             enemyMovement();
             // Visualise the entities
-            Stream.concat(positiveBonuses.stream(),Stream.concat(Stream.concat(Stream.concat(playerBullets.stream(), enemies.stream()),
-                    Stream.of(playerShip)), enemyBullets.stream())).forEach(Entity::visualise);
+            visualiseEntities();
             // Move the entities
-            Stream.concat(positiveBonuses.stream(), Stream.concat(Stream.concat(Stream.concat(playerBullets.stream(),
-                    enemies.stream()), Stream.of(playerShip)), enemyBullets.stream())).forEach(Entity ->
-                    Entity.setMovementComponent(MovementUpdater.update(Entity.getMovementComponent())));
-
+            executeMovement();
             // Make some enemies shoot
             enemyShoot();
             // Check if the enemies are hit by a player bullet
@@ -303,6 +309,23 @@ public class Game {
             // Sleep to get a constant time/frame
             gameTimer.sleep();
         }
+    }
+
+    /**
+     * Call the visualise method for every entity
+     */
+    public void visualiseEntities(){
+        Stream.concat(positiveBonuses.stream(),Stream.concat(Stream.concat(Stream.concat(playerBullets.stream(), enemies.stream()),
+                Stream.of(playerShip)), enemyBullets.stream())).forEach(Entity::visualise);
+    }
+
+    /**
+     * Update all the movement components of all the entities
+     */
+    public void executeMovement(){
+        Stream.concat(positiveBonuses.stream(), Stream.concat(Stream.concat(Stream.concat(playerBullets.stream(),
+                enemies.stream()), Stream.of(playerShip)), enemyBullets.stream())).forEach(Entity ->
+                Entity.setMovementComponent(MovementUpdater.update(Entity.getMovementComponent())));
     }
 
     /**
@@ -545,5 +568,4 @@ public class Game {
             isRunning = false;
         }
     }
-
 }

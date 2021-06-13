@@ -1,7 +1,7 @@
 package be.uantwerpen.fti.ei.geavanceerde.space.Game.Components;
 
 /**
- * Class tho represent the coordinates and movement of the entities
+ * Class to represent the coordinates and movement of the entities
  */
 public class MovementComponent {
     /**

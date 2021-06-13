@@ -1,7 +1,7 @@
 package be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D.Interaction;
 
 import be.uantwerpen.fti.ei.geavanceerde.space.Game.Interaction.Input;
-import be.uantwerpen.fti.ei.geavanceerde.space.Visual.Engine;
+import be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D.J2DEngine;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -20,7 +20,7 @@ public class J2DKeyboardInput extends Input {
      * Constructor to initialise the variables
      * @param engine visual engine to link the inputs to a frame
      */
-    public J2DKeyboardInput(Engine engine){
+    public J2DKeyboardInput(J2DEngine engine){
         // add a key listener to a frame
         engine.getFrame().addKeyListener(new KeyInputAdapter());
         keyInputs = new LinkedList<>();

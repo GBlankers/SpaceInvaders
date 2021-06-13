@@ -1,15 +1,33 @@
 package be.uantwerpen.fti.ei.geavanceerde.space.Visual;
 
-import javax.swing.*;
-import java.awt.*;
-
 public abstract class Engine {
 
+    /**
+     * Start the engine
+     */
     public abstract void start();
-    public abstract Graphics2D getG2d();
-    public abstract JFrame getFrame();
+
+    /**
+     * Get the grid size
+     * @return grid size
+     */
     public abstract int getSize();
+
+    /**
+     * Get the size of the images
+     * @return image size
+     */
     public abstract int getImageSize();
+
+    /**
+     * Render the current frame
+     */
     public abstract void render();
+
+    /**
+     * Set the game dimensions
+     * @param gameWidth the game width
+     * @param gameHeight the game height
+     */
     public abstract void setGameDimensions(int gameWidth, int gameHeight);
 }

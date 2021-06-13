@@ -5,6 +5,9 @@ import be.uantwerpen.fti.ei.geavanceerde.space.Visual.J2D.J2DEngine;
 
 import java.awt.*;
 
+/**
+ * J2D version of the player ship
+ */
 public class J2DPlayerShip extends PlayerShip {
     private final J2DEngine engine;
 
